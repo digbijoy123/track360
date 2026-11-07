@@ -1,15 +1,25 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [train, setTrain] = useState("");
+  const [message, setMessage] = useState("");
+  const router = useRouter();
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const query = train.trim();
-    if (!query) return;
-    window.alert("Train search for \"" + query + "\" will be available when the data API is connected.");
+    const query = train.trim().toLowerCase();
+    if (!query) {
+      setMessage("Enter a train name or number to continue.");
+      return;
+    }
+    if (query === "90001" || query.includes("demo") || query.includes("guwahati") || query.includes("silchar")) {
+      router.push("/train/90001");
+      return;
+    }
+    setMessage("The current preview contains one simulated journey: Demo Express 90001. Live train search is not connected yet.");
   }
 
   return (
@@ -30,10 +40,11 @@ export default function Home() {
           <label htmlFor="train-search">Find your train</label>
           <div className="search-row">
             <span className="search-icon" aria-hidden="true">⌕</span>
-            <input id="train-search" value={train} onChange={(event) => setTrain(event.target.value)} placeholder="Enter train name or number" autoComplete="off" />
+            <input id="train-search" value={train} onChange={(event) => { setTrain(event.target.value); setMessage(""); }} placeholder="Try 90001 or Guwahati–Silchar" autoComplete="off" />
             <button type="submit">Track train <span aria-hidden="true">→</span></button>
           </div>
-          <div className="search-hint">Search by train name or 5-digit train number</div>
+          <div className="search-hint">Preview mode: try Demo Express 90001</div>
+          {message && <p className="search-message" role="status">{message}</p>}
         </form>
 
         <div className="trust-row">
